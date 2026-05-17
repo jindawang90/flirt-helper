@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#D85A30">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>话友 - 聊天助手</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <!-- Status bar spacer for iOS -->
+  <div class="status-bar"></div>
+
+  <!-- Tab content -->
+  <main id="app">
+    <!-- Page: 档案 -->
+    <section id="page-profile" class="page active">
+      <header class="page-header">
+        <h1>她的档案</h1>
+      </header>
+      <div class="page-body">
+        <div class="profile-card">
+          <div class="avatar" id="avatar-display">她</div>
+          <div class="profile-fields">
+            <div class="field">
+              <label>称呼</label>
+              <input type="text" id="profile-name" placeholder="怎么称呼她？" maxlength="10">
+            </div>
+            <div class="field">
+              <label>关系阶段</label>
+              <div class="stage-selector" id="stage-selector">
+                <span data-stage="刚认识">刚认识</span>
+                <span data-stage="朋友阶段">朋友阶段</span>
+                <span data-stage="暧昧期">暧昧期</span>
+                <span data-stage="已在一起">已在一起</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">兴趣标签</div>
+        <div class="tags" id="tags-container">
+          <div class="tag-add" id="tag-add-btn">+ 添加标签</div>
+        </div>
+        <div class="tag-input-area" id="tag-input-area" style="display:none;">
+          <input type="text" id="tag-input" placeholder="输入兴趣，回车确认" maxlength="15">
+        </div>
+
+        <div class="section-title">备注</div>
+        <textarea id="profile-notes" placeholder="关于她的其他信息...&#10;例如：生日、喜欢的食物、最近的计划"></textarea>
+      </div>
+    </section>
+
+    <!-- Page: 助手 -->
+    <section id="page-assistant" class="page">
+      <header class="page-header">
+        <h1>聊天助手</h1>
+      </header>
+      <div class="page-body">
+        <div class="input-card">
+          <div class="scene-hint" id="scene-hint">
+            <span class="label">场景</span>
+            <select id="scene-select">
+              <option value="reply">她发来了消息</option>
+              <option value="open">我想开场/破冰</option>
+              <option value="awkward">气氛有点尴尬</option>
+            </select>
+          </div>
+          <textarea id="chat-input" placeholder="粘贴她发来的消息，或描述当前场景..." rows="4"></textarea>
+          <button class="btn-primary" id="btn-ask">获取建议</button>
+        </div>
+
+        <div id="result-area" style="display:none;">
+          <div class="result-section" id="result-emotion">
+            <div class="result-label">她的情绪 / 潜台词</div>
+            <div class="result-content"></div>
+          </div>
+          <div class="result-section" id="result-direction">
+            <div class="result-label">回复方向</div>
+            <div class="result-content"></div>
+          </div>
+          <div class="result-section" id="result-danger">
+            <div class="result-label danger-label">雷区提醒</div>
+            <div class="result-content"></div>
+          </div>
+          <div class="result-section" id="result-topic">
+            <div class="result-label">话题切入</div>
+            <div class="result-content"></div>
+          </div>
+        </div>
+
+        <div id="loading-area" style="display:none;">
+          <div class="loading-spinner"></div>
+          <p>正在思考...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Page: 话题 -->
+    <section id="page-topics" class="page">
+      <header class="page-header">
+        <h1>话题推荐</h1>
+        <button class="btn-small" id="btn-refresh-topics">换一批</button>
+      </header>
+      <div class="page-body">
+        <div class="topics-hint" id="topics-hint">
+          <span id="topics-stage-label">刚认识阶段</span>
+          <span>·</span>
+          <span id="topics-interest-label">基于她的兴趣推荐</span>
+        </div>
+        <div id="topics-list"></div>
+        <div id="topics-loading" style="display:none;">
+          <div class="loading-spinner"></div>
+          <p>生成话题中...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Page: 设置 -->
+    <section id="page-settings" class="page">
+      <header class="page-header">
+        <h1>设置</h1>
+      </header>
+      <div class="page-body">
+        <div class="setting-card">
+          <div class="setting-item">
+            <div>
+              <div class="setting-label">API Key</div>
+              <div class="setting-desc">DeepSeek API，用于生成对话建议</div>
+            </div>
+          </div>
+          <div class="field">
+            <input type="password" id="settings-apikey" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+            <button class="btn-small" id="btn-toggle-key">显示</button>
+          </div>
+          <div class="setting-item">
+            <div>
+              <div class="setting-label">API 端点</div>
+              <div class="setting-desc">默认 DeepSeek，可自定义</div>
+            </div>
+          </div>
+          <div class="field">
+            <input type="text" id="settings-endpoint" placeholder="https://api.deepseek.com/v1/chat/completions">
+          </div>
+          <div class="setting-item">
+            <div>
+              <div class="setting-label">模型</div>
+              <div class="setting-desc">默认 deepseek-chat</div>
+            </div>
+          </div>
+          <div class="field">
+            <input type="text" id="settings-model" placeholder="deepseek-chat">
+          </div>
+          <button class="btn-primary" id="btn-save-settings">保存设置</button>
+          <div class="save-tip" id="save-tip" style="display:none;">已保存</div>
+        </div>
+
+        <div class="setting-card">
+          <div class="setting-item">
+            <div>
+              <div class="setting-label">数据管理</div>
+              <div class="setting-desc">所有数据存储在本地，不会上传</div>
+            </div>
+          </div>
+          <button class="btn-danger" id="btn-clear-data">清除所有数据</button>
+        </div>
+
+        <div class="about-text">
+          <p>话友 v1.0 · 数据仅存本地</p>
+          <p class="tip">首次使用请先到设置页填入 DeepSeek API Key</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom tab bar -->
+  <nav class="tab-bar" id="tab-bar">
+    <button class="tab active" data-page="profile">
+      <span class="tab-icon">&#x1F9D1;</span>
+      <span class="tab-label">档案</span>
+    </button>
+    <button class="tab" data-page="assistant">
+      <span class="tab-icon">&#x1F4AC;</span>
+      <span class="tab-label">助手</span>
+    </button>
+    <button class="tab" data-page="topics">
+      <span class="tab-icon">&#x1F4A1;</span>
+      <span class="tab-label">话题</span>
+    </button>
+    <button class="tab" data-page="settings">
+      <span class="tab-icon">&#x2699;</span>
+      <span class="tab-label">设置</span>
+    </button>
+  </nav>
+
+  <script src="js/data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/pages.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
